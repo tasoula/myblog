@@ -18,4 +18,16 @@ public class CommentService {
     public List<Comment> getPostComments(UUID postId) {
         return repository.getPostComments(postId);
     }
+
+    public void create(UUID postId, Comment comment) {
+        repository.create(postId, comment);
+    }
+
+    public void update(Comment comment) {
+        repository.update(comment);
+    }
+
+    public void delete(UUID commentId) {
+        repository.delete(commentId);
+    }
 }

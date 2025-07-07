@@ -4,6 +4,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/posts/{id}")
-public class PostController {
+@RequestMapping("/posts")
+public class PostFeedController {
 }

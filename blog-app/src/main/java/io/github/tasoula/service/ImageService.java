@@ -45,4 +45,37 @@ public class ImageService {
 
         return filename;
     }
+
+    public void updatePostImage(UUID postId, MultipartFile image) {
+        if (image == null || image.isEmpty())
+            return;
+
+        try {
+            deletePostImage(postId);
+            String filename = saveToDisc(image);
+            repository.updatePostImage(postId, filename); // Сохраняем путь
+
+        } catch (IOException e) {
+            log.error("Произошла ошибка: {}", e.getMessage(), e);
+        }
+    }
+
+    public void deletePostImage(UUID postId) {
+        //удалить картинку из хранилища
+        String imagePath = repository.getPostImage(postId);
+        if (imagePath == null)
+            return;
+
+        Path filePath = Paths.get(uploadDir, imagePath);
+
+        if (!Files.exists(filePath))
+            return;
+
+        try {
+            Files.delete(filePath);
+        } catch (IOException e) {
+            log.error("Произошла ошибка: {}", e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
 }

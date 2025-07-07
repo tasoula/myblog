@@ -61,4 +61,15 @@ public class PostService {
         }
     }
 
+    public void update(UUID id, String title, MultipartFile image, String tags, String content) {
+        Post post = new Post();
+        post.setId(id);
+        post.setTitle(title);
+        post.setContent(content);
+        postRepository.update(post); // Сохранить пост в базу
+
+        imageService.updatePostImage(id, image);
+        tagService.updatePostTags(id, tags);
+    }
+
 }

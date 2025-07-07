@@ -12,4 +12,6 @@ public interface PostRepository {
     Page<Post> findByTags(List<String> tagName, Pageable pageable);
 
     UUID create(Post post);
+    void update(Post post);
+
 }

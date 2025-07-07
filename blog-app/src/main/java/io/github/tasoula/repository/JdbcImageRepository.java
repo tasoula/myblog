@@ -19,4 +19,8 @@ public class JdbcImageRepository implements ImageRepository {
         return jdbcTemplate.queryForObject("select image_url from t_posts where id = ?", String.class, postId);
     }
 
+    @Override
+    public void updatePostImage(UUID postId, String filename) {
+        jdbcTemplate.update("UPDATE t_posts SET image_url = ? WHERE id = ?", filename, postId);
+    }
 }

@@ -104,4 +104,14 @@ public class JdbcPostRepository implements PostRepository {
 
         return keyHolder.getKeyAs(UUID.class);
     }
+
+    @Override
+    public void update(Post post) {
+        jdbcTemplate.update("UPDATE t_posts SET title = ?, content = ? WHERE id = ?",
+                post.getTitle(),
+                post.getContent(),
+                post.getId());
+    }
+
+
 }

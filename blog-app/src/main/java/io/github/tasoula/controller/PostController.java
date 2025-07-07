@@ -5,9 +5,8 @@ import io.github.tasoula.service.PostService;
 import io.github.tasoula.service.TagService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -25,5 +24,22 @@ public class PostController {
         model.addAttribute("post", service.getPost(id));
         return "post";
     }
+
+    @GetMapping("edit")
+    public String edit(@PathVariable("id") UUID id, Model model) {
+        model.addAttribute("post", service.getPost(id));
+        return "new-post";
+    }
+    @PostMapping()
+    public String save(@PathVariable("id") UUID id,
+                       @RequestParam("title") String title,
+                       @RequestParam("image") MultipartFile image,
+                       @RequestParam("tags") String tags,
+                       @RequestParam("content") String content) {
+
+        service.update(id, title, image, tags, content);
+        return "redirect:/posts/{id}";
+    }
+
 
 }

@@ -11,7 +11,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackages = "io/github/tasoula")
-@PropertySource("classpath:application.properties")
+@PropertySource("classpath:test-application.properties")
 public class WebTestConfiguration {
 
     @Bean(name = "multipartResolver")

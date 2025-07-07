@@ -72,4 +72,9 @@ public class PostService {
         tagService.updatePostTags(id, tags);
     }
 
+    public void delete(UUID id) {
+        imageService.deletePostImage(id);
+        postRepository.delete(id);
+    }
+
 }

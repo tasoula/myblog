@@ -41,5 +41,9 @@ public class PostController {
         return "redirect:/posts/{id}";
     }
 
-
+    @PostMapping("delete")
+    public String delete(@PathVariable("id") UUID id, Model model) {
+        service.delete(id);
+        return "redirect:/posts";
+    }
 }

@@ -113,5 +113,8 @@ public class JdbcPostRepository implements PostRepository {
                 post.getId());
     }
 
-
+    @Override
+    public void delete(UUID id) {
+        jdbcTemplate.update("DELETE FROM t_posts WHERE id = ?", id);
+    }
 }

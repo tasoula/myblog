@@ -17,7 +17,6 @@
   </properties>
 
   <dependencies>
-    <!-- Spring Web MVC -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-webmvc</artifactId>
@@ -43,10 +42,11 @@
       <version>3.1.2.RELEASE</version>
     </dependency>
 
+    <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
     <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>2.2.224</version>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.7.7</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.data</groupId>
@@ -86,6 +86,13 @@
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>1.5.13</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.38</version>
+      <scope>provided</scope>
     </dependency>
 
   </dependencies>

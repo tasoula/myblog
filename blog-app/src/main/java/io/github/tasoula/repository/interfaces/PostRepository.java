@@ -9,6 +9,7 @@ import java.util.UUID;
 
 public interface PostRepository {
     Post findById(UUID id);
-
     Page<Post> findByTags(List<String> tagName, Pageable pageable);
+
+    UUID create(Post post);
 }

@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -31,5 +34,15 @@ public class ImageService {
 
         Path filePath = Paths.get(uploadDir, fileName);
         return Optional.of(new FileSystemResource(filePath.toFile()));
+    }
+
+    public String saveToDisc(MultipartFile file) throws IOException {
+        String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+
+        // 2. Сохранить файл на диск
+        Path filePath = Paths.get(uploadDir, filename);
+        Files.copy(file.getInputStream(), filePath);
+
+        return filename;
     }
 }

@@ -6,8 +6,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
@@ -82,5 +85,23 @@ public class JdbcPostRepository implements PostRepository {
                         rs.getLong("like_count"),
                         (Timestamp) rs.getObject("created_at")
                 ), id);
+    }
+
+    @Override
+    public UUID create(Post post) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(
+                    "INSERT INTO public.t_posts (title, content, image_url, like_count) VALUES (?, ?, ?, ?)",
+                    new String[]{"id"});
+
+            ps.setString(1, post.getTitle());
+            ps.setString(2, post.getContent());
+            ps.setString(3, post.getImageUrl());
+            ps.setLong(4, post.getLikeCount());
+            return ps;
+        }, keyHolder);
+
+        return keyHolder.getKeyAs(UUID.class);
     }
 }

@@ -21,6 +21,10 @@ public class TagService {
         return repository.getTagsByPostId(postId);
     }
 
+    public void updatePostTags(UUID postId, String tags) {
+        repository.updatePostTags(postId, parseTags(tags));
+    }
+
     public List<String> parseTags(String input) {
         List<String> tags = new ArrayList<>();
 

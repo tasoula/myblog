@@ -9,8 +9,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RequestMapping("/posts")
@@ -37,5 +39,20 @@ public class PostFeedController {
         model.addAttribute("paging", postsPage);
         model.addAttribute("posts", postsPage.getContent());
         return "posts";
+    }
+
+    @GetMapping("new")
+    public String newPost(Model model) {
+        return "new-post";
+    }
+
+    @PostMapping()
+    public String create(@RequestParam("title") String title,
+                         @RequestParam("image") MultipartFile image,
+                         @RequestParam("tags") String tags,
+                         @RequestParam("content") String content
+    ) {
+        service.create(title, image, tags, content);
+        return "redirect:/posts";
     }
 }

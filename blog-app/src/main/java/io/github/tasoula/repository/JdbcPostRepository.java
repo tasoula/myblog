@@ -9,6 +9,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
@@ -117,4 +120,11 @@ public class JdbcPostRepository implements PostRepository {
     public void delete(UUID id) {
         jdbcTemplate.update("DELETE FROM t_posts WHERE id = ?", id);
     }
+
+    @Override
+    public void updateLikes(UUID id, int delta) {
+        jdbcTemplate.update("UPDATE t_posts SET like_count = like_count + ? WHERE id = ?", delta, id);
+    }
+
+
 }

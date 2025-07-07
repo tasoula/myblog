@@ -46,4 +46,10 @@ public class PostController {
         service.delete(id);
         return "redirect:/posts";
     }
+
+    @PostMapping("like")
+    public String like(@PathVariable("id") UUID id, @RequestParam("like") boolean like) {
+        service.addLike(id, like);
+        return "redirect:/posts/{id}";
+    }
 }

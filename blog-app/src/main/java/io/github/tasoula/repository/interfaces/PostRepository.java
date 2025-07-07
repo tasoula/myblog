@@ -14,4 +14,5 @@ public interface PostRepository {
     UUID create(Post post);
     void update(Post post);
     void delete(UUID id);
+    void updateLikes(UUID id, int i);
 }

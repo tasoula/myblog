@@ -77,4 +77,8 @@ public class PostService {
         postRepository.delete(id);
     }
 
+    public void addLike(UUID id, boolean like) {
+        postRepository.updateLikes(id, like ? 1 : -1);
+    }
+
 }

@@ -29,7 +29,7 @@ public class JdbcPostRepository implements PostRepository {
     @Override
     public Page<Post> findByTags(List<String> tagName, Pageable pageable) {
         String sql = """ 
-                SELECT p.id, p.title, p.image_url, p.content, p.like_count, p.created_at,
+                SELECT DISTINCT p.id, p.title, p.image_url, p.content, p.like_count, p.created_at,
                  (select count(1) from t_comments c where p.id = c.post_id) AS comment_count
                  FROM t_posts p""";
 
@@ -125,6 +125,4 @@ public class JdbcPostRepository implements PostRepository {
     public void updateLikes(UUID id, int delta) {
         jdbcTemplate.update("UPDATE t_posts SET like_count = like_count + ? WHERE id = ?", delta, id);
     }
-
-
 }

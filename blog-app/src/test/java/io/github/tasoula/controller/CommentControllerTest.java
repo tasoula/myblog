@@ -1,14 +1,15 @@
 package io.github.tasoula.controller;
 
-
-import io.github.tasoula.config.DataSourceTestConfiguration;
-import io.github.tasoula.config.WebTestConfiguration;
+import io.github.tasoula.config.DataSourceConfiguration;
+import io.github.tasoula.config.WebConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -18,23 +19,25 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.UUID;
 
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
+/*@ExtendWith(SpringExtension.class)
+@WebAppConfiguration
+@ContextConfiguration(classes = {DataSourceTestConfiguration.class, WebTestConfiguration.class})*/
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
-@ContextConfiguration(classes = {DataSourceTestConfiguration.class, WebTestConfiguration.class})
+@ContextConfiguration(classes = {WebConfiguration.class, DataSourceConfiguration.class})
+@ActiveProfiles("test") // Активируем профиль "test"
 public class CommentControllerTest {
-
     @Autowired
     private WebApplicationContext webApplicationContext;
     private MockMvc mockMvc;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
 
     private UUID postId;
     private  UUID commentId;
@@ -81,3 +84,4 @@ public class CommentControllerTest {
                 .andExpect(redirectedUrl("/posts/" + postId.toString()));
     }
 }
+

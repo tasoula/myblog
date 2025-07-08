@@ -1,11 +1,12 @@
 package io.github.tasoula.repository;
 
-import io.github.tasoula.config.DataSourceTestConfiguration;
-import io.github.tasoula.config.WebTestConfiguration;
+import io.github.tasoula.config.DataSourceConfiguration;
+import io.github.tasoula.config.WebConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -17,9 +18,10 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@SpringJUnitConfig(classes = {DataSourceTestConfiguration.class, WebTestConfiguration.class})
+@SpringJUnitConfig(classes = {DataSourceConfiguration.class, WebConfiguration.class})
 @WebAppConfiguration
 @TestPropertySource(locations = "classpath:test-application.properties")
+@ActiveProfiles("test") // Активируем профиль "test"
 class JdbcTagRepositoryTest {
 
     @Autowired

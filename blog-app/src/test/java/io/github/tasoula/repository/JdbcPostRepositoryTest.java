@@ -25,7 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 
 @SpringJUnitConfig(classes = {DataSourceConfiguration.class, WebConfiguration.class})
 @WebAppConfiguration
-@TestPropertySource(locations = "classpath:test-application.properties")
+@TestPropertySource(locations = "classpath:application.properties")
 @ActiveProfiles("test") // Активируем профиль "test"
 class JdbcPostRepositoryTest {
 

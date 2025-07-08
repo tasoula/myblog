@@ -1,22 +1,13 @@
 package io.github.tasoula.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = "io/github/tasoula")
+@ComponentScan(basePackages = "src/test/java/io/github/tasoula")
 @PropertySource("classpath:test-application.properties")
-public class WebTestConfiguration {
-
-    @Bean(name = "multipartResolver")
-    public MultipartResolver multipartResolver() {
-        return new StandardServletMultipartResolver();
-    }
-}
+public class WebTestConfiguration {}
 

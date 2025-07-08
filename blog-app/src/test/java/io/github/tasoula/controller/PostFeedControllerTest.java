@@ -1,13 +1,14 @@
 package io.github.tasoula.controller;
 
-import io.github.tasoula.config.DataSourceTestConfiguration;
-import io.github.tasoula.config.WebTestConfiguration;
+import io.github.tasoula.config.DataSourceConfiguration;
+import io.github.tasoula.config.WebConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -23,7 +24,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
-@ContextConfiguration(classes = {DataSourceTestConfiguration.class, WebTestConfiguration.class})
+@ContextConfiguration(classes = {DataSourceConfiguration.class, WebConfiguration.class})
+@ActiveProfiles("test")
 class PostFeedControllerTest {
 
     @Autowired

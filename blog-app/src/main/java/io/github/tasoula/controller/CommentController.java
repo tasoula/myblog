@@ -39,5 +39,4 @@ public class CommentController {
         service.delete(commentId);
         return "redirect:/posts/" + id;
     }
-
 }

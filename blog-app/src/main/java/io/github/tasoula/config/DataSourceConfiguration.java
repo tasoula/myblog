@@ -4,6 +4,8 @@ import org.postgresql.Driver;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.io.ClassPathResource;
@@ -18,6 +20,8 @@ public class DataSourceConfiguration {
 
     // Настройка DataSource — компонент, отвечающий за соединение с базой данных
     @Bean
+    @Profile("!test")
+    @Primary
     public DataSource dataSource(
             // Настройки соединения возьмём из Environment
             @Value("${spring.datasource.url}") String url,
@@ -33,6 +37,29 @@ public class DataSourceConfiguration {
         return dataSource;
     }
 
+    @Bean
+    @Profile("test")
+    public DataSource testDataSource(
+            // Настройки соединения возьмём из Environment
+            @Value("${spring.datasource.test.url}") String url,
+            @Value("${spring.datasource.test.username}") String username,
+            @Value("${spring.datasource.test.password}") String password
+    ) {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(Driver.class.getName());
+        dataSource.setUrl(url);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
+
+        ResourceDatabasePopulator populator = new ResourceDatabasePopulator();
+        populator.addScript(new ClassPathResource("posts.sql"));
+        populator.addScript(new ClassPathResource("comments.sql"));
+        populator.addScript(new ClassPathResource("tags.sql"));
+        populator.execute(dataSource);
+
+        return dataSource;
+    }
+
     // JdbcTemplate — компонент для выполнения запросов
     @Bean
     public JdbcTemplate jdbcTemplate(DataSource dataSource) {
@@ -41,6 +68,7 @@ public class DataSourceConfiguration {
 
     // После инициализации контекста выполняем наполнение схемы базы данных
     @EventListener
+    @Profile("!test")
     public void populate(ContextRefreshedEvent event) {
         DataSource dataSource = event.getApplicationContext().getBean(DataSource.class);
 
@@ -51,4 +79,5 @@ public class DataSourceConfiguration {
         populator.execute(dataSource);
     }
 }
+
 

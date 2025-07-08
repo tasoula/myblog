@@ -1,40 +1,32 @@
 package io.github.tasoula.repository;
 
 
-import io.github.tasoula.config.DataSourceTestConfiguration;
-import io.github.tasoula.config.WebTestConfiguration;
+import io.github.tasoula.config.DataSourceConfiguration;
+import io.github.tasoula.config.WebConfiguration;
 import io.github.tasoula.dto.Post;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.*;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
 
-@SpringJUnitConfig(classes = {DataSourceTestConfiguration.class, WebTestConfiguration.class})
+@SpringJUnitConfig(classes = {DataSourceConfiguration.class, WebConfiguration.class})
 @WebAppConfiguration
 @TestPropertySource(locations = "classpath:test-application.properties")
+@ActiveProfiles("test") // Активируем профиль "test"
 class JdbcPostRepositoryTest {
 
     @Autowired

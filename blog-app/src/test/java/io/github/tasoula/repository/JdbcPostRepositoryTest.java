@@ -1,18 +1,24 @@
 package io.github.tasoula.repository;
 
 
+import io.github.tasoula.config.DataSourceTestConfiguration;
+import io.github.tasoula.config.WebTestConfiguration;
 import io.github.tasoula.dto.Post;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -26,210 +32,243 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@SpringJUnitConfig(classes = {DataSourceTestConfiguration.class, WebTestConfiguration.class})
+@WebAppConfiguration
+@TestPropertySource(locations = "classpath:test-application.properties")
 class JdbcPostRepositoryTest {
 
- /*    @Mock
+    @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    private JdbcPostRepository jdbcPostRepository;
+    private JdbcPostRepository postRepository;
+
+    private final UUID postId1 = UUID.randomUUID();
+    private final String expectedTitle = "Post 1";
+    private  final String expectedImage = "image1.jpg";
+    private final String expectedContenet = "Content 1";
+    private final int expentedLikes = 10;
+
+    private UUID postId2;
 
     @BeforeEach
     void setUp() {
-        jdbcPostRepository = new JdbcPostRepository(jdbcTemplate);
+        postRepository = new JdbcPostRepository(jdbcTemplate);
+        // Очистка базы данных
+        jdbcTemplate.execute("DELETE FROM t_sv_post_tag");
+        jdbcTemplate.execute("DELETE FROM t_tags");
+        jdbcTemplate.execute("DELETE FROM t_posts");
+
+        UUID postId2 = UUID.randomUUID();
+        UUID postId3 = UUID.randomUUID();
+        jdbcTemplate.update("INSERT INTO t_posts (id, title, image_url, content, like_count) VALUES (?, ?, ?, ?, ?)",
+                postId1 , expectedTitle, expectedImage, expectedContenet, expentedLikes);
+        jdbcTemplate.update("INSERT INTO t_posts (id, title, image_url, content, like_count) VALUES (?, ?, ?, ?, ?)",
+                postId2 , "Post 2", "image2.jpg", "Content 2", 5);
+        jdbcTemplate.update("INSERT INTO t_posts (id, title, image_url, content, like_count) VALUES (?, ?, ?, ?, ?)",
+                postId3 , "Post 3", "image3.jpg", "Content 3", 6);
+
+        UUID tagId1 = UUID.randomUUID();
+        UUID tagId2 = UUID.randomUUID();
+
+        jdbcTemplate.execute("INSERT INTO t_tags (id, name) VALUES ('" + tagId1 + "', 'java')");
+        jdbcTemplate.execute("INSERT INTO t_tags (id, name) VALUES ('" + tagId2 + "', 'spring')");
+
+        jdbcTemplate.update("INSERT INTO t_sv_post_tag (post_id, tag_id, id) VALUES (?, ?, ?)", postId1, tagId1, UUID.randomUUID());
+        jdbcTemplate.update("INSERT INTO t_sv_post_tag (post_id, tag_id, id) VALUES (?, ?, ?)", postId1, tagId2, UUID.randomUUID());
+        jdbcTemplate.update("INSERT INTO t_sv_post_tag (post_id, tag_id, id) VALUES (?, ?, ?)", postId2, tagId1, UUID.randomUUID());
     }
 
     @Test
-   void findByTags_WithTags_ReturnsPageOfPosts() throws SQLException {
-        // Arrange
-        List<String> tagNames = Arrays.asList("tag1", "tag2");
+    void findById_shouldReturnPostIfExists() {
+        Post post = postRepository.findById(postId1);
+        assertNotNull(post);
+        assertEquals(postId1, post.getId());
+    }
+
+    @Test
+    void findById_shouldReturnNullIfPostDoesNotExist() {
+        UUID nonExistentId = UUID.randomUUID();
+        assertThrows(org.springframework.dao.EmptyResultDataAccessException.class, () -> postRepository.findById(nonExistentId));
+    }
+
+    @Test
+    void findByTags_shouldReturnPostsWithGivenTags() {
         Pageable pageable = PageRequest.of(0, 10);
-        List<Post> expectedPosts = Arrays.asList(
-                createPost(UUID.randomUUID(), "title1", "content1", "image1", 10L, 2, new Timestamp(System.currentTimeMillis())),
-                createPost(UUID.randomUUID(), "title2", "content2", "image2", 20L, 5, new Timestamp(System.currentTimeMillis()))
-        );
+        List<String> tags = List.of("java", "spring");
 
-        when(jdbcTemplate.query(anyString(), any(Object[].class), any(PostRowMapper.class)))
-                .thenReturn(expectedPosts);
+        Page<Post> posts = postRepository.findByTags(tags, pageable);
 
-        when(jdbcTemplate.query(anyString(), any(Object[].class), any(TagRowMapper.class)))
-                .thenReturn(Arrays.asList("tag1", "tag2"));
-
-        when(jdbcTemplate.queryForObject(anyString(), eq(Integer.class), any(Object[].class)))
-                .thenReturn(2); // total count for pagination
-
-        // Act
-        Page<Post> actualPage = jdbcPostRepository.findByTags(tagNames, pageable);
-
-        // Assert
-        assertNotNull(actualPage);
-        assertEquals(expectedPosts.size(), actualPage.getContent().size());
-        assertEquals(2, actualPage.getTotalElements());  // Assert total elements
-        verify(jdbcTemplate, times(1)).query(anyString(), any(Object[].class), any(PostRowMapper.class));
-        verify(jdbcTemplate, times(2)).query(anyString(), any(Object[].class), any(TagRowMapper.class)); // Called for each post
-        verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(Integer.class), any(Object[].class));
+        assertNotNull(posts);
+        assertEquals(2, posts.getTotalElements());
+        assertEquals(1, posts.getTotalPages());
+        assertEquals(2, posts.getContent().size());
+        assertEquals("Post 2", posts.getContent().get(0).getTitle());
+        assertEquals("Post 1", posts.getContent().get(1).getTitle());
+        assertEquals(1, posts.getContent().get(0).getTags().size());
+        assertTrue(posts.getContent().get(0).getTags().contains("java"));
+        assertEquals(2, posts.getContent().get(1).getTags().size());
+        assertTrue(posts.getContent().get(1).getTags().contains("java"));
+        assertTrue(posts.getContent().get(1).getTags().contains("spring"));
     }
 
     @Test
-    void findByTags_WithNoTags_ReturnsPageOfPosts() throws SQLException {
-        // Arrange
-        List<String> tagNames = Collections.emptyList();
+    void findByTags_shouldReturnEmptyPage_whenNoPostsMatchTags() {
         Pageable pageable = PageRequest.of(0, 10);
-        List<Post> expectedPosts = Arrays.asList(
-                createPost(UUID.randomUUID(), "title1", "content1", "image1", 10L, 2, new Timestamp(System.currentTimeMillis())),
-                createPost(UUID.randomUUID(), "title2", "content2", "image2", 20L, 5, new Timestamp(System.currentTimeMillis()))
-        );
+        List<String> tags = List.of("nonexistent");
 
-        when(jdbcTemplate.query(anyString(), any(PostRowMapper.class)))
-                .thenReturn(expectedPosts);
+        Page<Post> posts = postRepository.findByTags(tags, pageable);
 
-        when(jdbcTemplate.query(anyString(), any(Object[].class), any(TagRowMapper.class)))
-                .thenReturn(Arrays.asList("tag1", "tag2"));
-
-        when(jdbcTemplate.queryForObject(anyString(), eq(Integer.class)))
-                .thenReturn(2); // total count for pagination
-
-        // Act
-        Page<Post> actualPage = jdbcPostRepository.findByTags(tagNames, pageable);
-
-        // Assert
-        assertNotNull(actualPage);
-        assertEquals(expectedPosts.size(), actualPage.getContent().size());
-        assertEquals(2, actualPage.getTotalElements());  // Assert total elements
-        verify(jdbcTemplate, times(1)).query(anyString(), any(PostRowMapper.class));
-        verify(jdbcTemplate, times(2)).query(anyString(), any(Object[].class), any(TagRowMapper.class)); // Called for each post
-        verify(jdbcTemplate, times(1)).queryForObject(anyString(), eq(Integer.class));
-    }
-
-
-    @Test
-    void findById_ExistingId_ReturnsPost() throws SQLException {
-        // Arrange
-        UUID postId = UUID.randomUUID();
-        Post expectedPost = createPost(postId, "title1", "content1", "image1", 10L, null, new Timestamp(System.currentTimeMillis()));
-
-        when(jdbcTemplate.queryForObject(anyString(), any(Object[].class), any(PostRowMapper.class)))
-                .thenReturn(expectedPost);
-
-        // Act
-        Post actualPost = jdbcPostRepository.findById(postId);
-
-        // Assert
-        assertNotNull(actualPost);
-        assertEquals(expectedPost.getId(), actualPost.getId());
-        assertEquals(expectedPost.getTitle(), actualPost.getTitle());
-        verify(jdbcTemplate, times(1)).queryForObject(anyString(), any(Object[].class), any(PostRowMapper.class));
+        assertNotNull(posts);
+        assertEquals(0, posts.getTotalElements());
+        assertEquals(0, posts.getTotalPages());
+        assertTrue(posts.getContent().isEmpty());
     }
 
     @Test
-    void create_ValidPost_ReturnsGeneratedId() throws SQLException {
-        // Arrange
-        Post postToCreate = new Post(null, "title", "content", "image", 0L, null, new Timestamp(System.currentTimeMillis()));
-        UUID generatedId = UUID.randomUUID();
+    void findByTags_shouldReturnAllPosts_whenTagsIsNull() {
+        Pageable pageable = PageRequest.of(0, 10);
 
-        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-        when(jdbcTemplate.update(any(java.sql.Connection.class), any(java.sql.PreparedStatementCreator.class), any(GeneratedKeyHolder.class)))
-                .thenReturn(1); // Indicate that one row was updated
-        when(jdbcTemplate.update(any(java.sql.Connection.class), any(java.sql.PreparedStatementCreator.class), any(GeneratedKeyHolder.class)))
-                .thenAnswer(invocation -> {
-                    GeneratedKeyHolder holder = invocation.getArgument(2);
-                    holder.getKeyList().add(Collections.singletonMap("id", generatedId));
-                    return 1;
-                });
+        Page<Post> posts = postRepository.findByTags(null, pageable);
 
-        // Act
-        UUID actualId = jdbcPostRepository.create(postToCreate);
-
-        // Assert
-        assertNotNull(actualId);
-        assertEquals(generatedId, actualId);
-        verify(jdbcTemplate, times(1)).update(any(java.sql.Connection.class), any(java.sql.PreparedStatementCreator.class), any(GeneratedKeyHolder.class));
-    }
-
-
-    @Test
-    void update_ValidPost_UpdatesPost() {
-        // Arrange
-        Post postToUpdate = new Post(UUID.randomUUID(), "new title", "new content", "image", 0L, null, new Timestamp(System.currentTimeMillis()));
-        when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1); // Simulate one row updated
-
-        // Act
-        jdbcPostRepository.update(postToUpdate);
-
-        // Assert
-        verify(jdbcTemplate, times(1)).update(anyString(), any(Object[].class));
+        assertNotNull(posts);
+        assertEquals(3, posts.getTotalElements());
+        assertEquals(1, posts.getTotalPages());
+        assertEquals(3, posts.getContent().size());
     }
 
     @Test
-    void updateLikes_ValidId_UpdatesLikes() {
-        // Arrange
-        UUID postId = UUID.randomUUID();
-        int delta = 5;
-        when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1); // Simulate one row updated
+    void findByTags_shouldReturnAllPosts_whenTagsIsEmpty() {
+        Pageable pageable = PageRequest.of(0, 10);
+        List<String> tags = List.of();
 
-        // Act
-        jdbcPostRepository.updateLikes(postId, delta);
+        Page<Post> posts = postRepository.findByTags(tags, pageable);
 
-        // Assert
-        verify(jdbcTemplate, times(1)).update(anyString(), any(Object[].class));
+        assertNotNull(posts);
+        assertEquals(3, posts.getTotalElements());
+        assertEquals(1, posts.getTotalPages());
+        assertEquals(3, posts.getContent().size());
     }
 
     @Test
-    void delete_ValidId_DeletesPost() {
-        // Arrange
-        UUID postId = UUID.randomUUID();
-        when(jdbcTemplate.update(anyString(), any(Object[].class))).thenReturn(1); // Simulate one row updated
+    void findByTags_withPagination() {
+        Pageable pageable = PageRequest.of(1, 1); // page 1, size 1
 
-        // Act
-        jdbcPostRepository.delete(postId);
+        Page<Post> posts = postRepository.findByTags(null, pageable);
 
-        // Assert
-        verify(jdbcTemplate, times(1)).update(anyString(), any(Object[].class));
+        assertNotNull(posts);
+        assertEquals(3, posts.getTotalElements());
+        assertEquals(3, posts.getTotalPages());
+        assertEquals(1, posts.getContent().size());
+
+        // Ensure the correct post is returned on the second page
+        assertEquals("Post 2", posts.getContent().get(0).getTitle());
     }
 
-    // Helper methods for creating test data and custom RowMappers
-
-    private Post createPost(UUID id, String title, String content, String imageUrl, Long likeCount, Integer commentCount, Timestamp createdAt) {
+    @Test
+    void create_shouldCreateNewPost() {
         Post post = new Post();
-        post.setId(id);
-        post.setTitle(title);
-        post.setContent(content);
-        post.setImageUrl(imageUrl);
-        post.setLikeCount(likeCount);
-        post.setCommentCount(commentCount);
-        post.setCreatedAt(createdAt);
-        return post;
+        post.setTitle("Test Post");
+        post.setContent("This is a test content.");
+        post.setTags(List.of("tag1", "tag2"));
+        post.setImageUrl("http://example.com/image.jpg");
+
+        UUID postId = postRepository.create(post);
+
+        assertNotNull(postId);
+
+        // Проверка, что пост действительно был создан
+        Post retrievedPost = jdbcTemplate.queryForObject(
+                "select id, title, image_url, content, like_count, created_at from t_posts where id = ?",
+                (rs, rowNum) -> new Post(
+                        (UUID) rs.getObject("id"),
+                        rs.getString("title"),
+                        rs.getString("image_url"),
+                        rs.getString("content"),
+                        rs.getLong("like_count"),
+                        (Timestamp) rs.getObject("created_at")
+                ), postId);
+
+        assertNotNull(retrievedPost);
+        assertEquals("Test Post", retrievedPost.getTitle());
+        assertEquals("This is a test content.", retrievedPost.getContent());
+        assertEquals("http://example.com/image.jpg", retrievedPost.getImageUrl());
+        assertEquals(0, retrievedPost.getLikeCount());
     }
 
-    private interface RowMapper<T> {
-        T mapRow(ResultSet rs, int rowNum) throws SQLException;
+    @Test
+    void update_shouldUpdateExistingPost() {
+        // Сначала создаем пост
+        Post initialPost = new Post();
+        initialPost.setTitle("Initial Title");
+        initialPost.setContent("Initial Content");
+        initialPost.setImageUrl("initial_url");
+        UUID postId = postRepository.create(initialPost);
+
+        // Обновляем пост
+        Post updatedPost = new Post();
+        updatedPost.setId(postId);
+        updatedPost.setTitle("Updated Title");
+        updatedPost.setContent("Updated Content");
+        postRepository.update(updatedPost);
+
+        // Проверяем, что пост был обновлен
+        Post retrievedPost = jdbcTemplate.queryForObject("select id, title, image_url, content, like_count, created_at from t_posts where id = ?",
+                (rs, rowNum) -> new Post(
+                        (UUID) rs.getObject("id"),
+                        rs.getString("title"),
+                        rs.getString("image_url"),
+                        rs.getString("content"),
+                        rs.getLong("like_count"),
+                        (Timestamp) rs.getObject("created_at")
+                ), postId);
+
+        assertNotNull(retrievedPost);
+        assertEquals("Updated Title", retrievedPost.getTitle());
+        assertEquals("Updated Content", retrievedPost.getContent());
+        assertEquals("initial_url", retrievedPost.getImageUrl());
     }
 
+    @Test
+    void delete_shouldDeletePost() {
+        // Создаем пост
+        Post initialPost = new Post();
+        initialPost.setTitle("Title to Delete");
+        initialPost.setContent("Content to Delete");
+        initialPost.setImageUrl("delete_url");
+        initialPost.setLikeCount(5);
+        UUID postId = postRepository.create(initialPost);
 
-    private class PostRowMapper implements RowMapper<Post> {
-        @Override
-        public Post mapRow(ResultSet rs, int rowNum) throws SQLException {
-            UUID id = (UUID) rs.getObject("id");
-            String title = rs.getString("title");
-            String imageUrl = rs.getString("image_url");
-            String content = rs.getString("content");
-            Long likeCount = rs.getLong("like_count");
-            Integer commentCount = rs.getInt("comment_count");
-            Timestamp createdAt = (Timestamp) rs.getObject("created_at");
+        // Удаляем пост
+        postRepository.delete(postId);
 
-            Post post = new Post(id, title, imageUrl, content, likeCount, commentCount, createdAt);
-            return post;
-        }
+        // Проверяем, что пост был удален
+        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(1) FROM t_posts WHERE id = ?", Integer.class, postId);
+        assertNotNull(count);
+        assertEquals(0, count);
     }
 
+    @Test
+    void updateLikes_shouldUpdateLikeCount() {
+        // Создаем пост
+        Post initialPost = new Post();
+        initialPost.setTitle("Title for Likes");
+        initialPost.setContent("Content for Likes");
+        initialPost.setImageUrl("likes_url");
+        initialPost.setLikeCount(5);
+        UUID postId = postRepository.create(initialPost);
 
-    private class TagRowMapper implements RowMapper<String> {
+        // Обновляем количество лайков
+        postRepository.updateLikes(postId, 3);
 
-        @Override
-        public String mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return rs.getString("name");
-        }
+        // Проверяем, что количество лайков было обновлено
+        Long updatedLikeCount = jdbcTemplate.queryForObject("SELECT like_count FROM t_posts WHERE id = ?", Long.class, postId);
+        assertNotNull(updatedLikeCount);
+        assertEquals(8, updatedLikeCount);
+
+        // Проверяем отрицательное значение delta
+        postRepository.updateLikes(postId, -5);
+        updatedLikeCount = jdbcTemplate.queryForObject("SELECT like_count FROM t_posts WHERE id = ?", Long.class, postId);
+        assertNotNull(updatedLikeCount);
+        assertEquals(3, updatedLikeCount);
     }
-
-   */
 }

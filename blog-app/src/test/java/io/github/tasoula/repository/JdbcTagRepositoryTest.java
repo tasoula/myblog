@@ -1,7 +1,7 @@
 package io.github.tasoula.repository;
 
 import io.github.tasoula.config.DataSourceTestConfiguration;
-import io.github.tasoula.config.WebConfiguration;
+import io.github.tasoula.config.WebTestConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,8 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringJUnitConfig(classes = {DataSourceTestConfiguration.class, WebConfiguration.class})
+
+@SpringJUnitConfig(classes = {DataSourceTestConfiguration.class, WebTestConfiguration.class})
 @WebAppConfiguration
 @TestPropertySource(locations = "classpath:test-application.properties")
 class JdbcTagRepositoryTest {

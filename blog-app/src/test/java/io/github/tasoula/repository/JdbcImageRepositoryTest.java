@@ -1,7 +1,7 @@
 package io.github.tasoula.repository;
 
 import io.github.tasoula.config.DataSourceTestConfiguration;
-import io.github.tasoula.config.WebConfiguration;
+import io.github.tasoula.config.WebTestConfiguration;
 import io.github.tasoula.repository.interfaces.ImageRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,18 +12,16 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.UUID;
 
-@SpringJUnitConfig(classes = {DataSourceTestConfiguration.class, WebConfiguration.class})
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringJUnitConfig(classes = {DataSourceTestConfiguration.class, WebTestConfiguration.class})
 @WebAppConfiguration
 @TestPropertySource(locations = "classpath:test-application.properties")
 public class JdbcImageRepositoryTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
-    @Autowired
     private ImageRepository imageRepository;  // Inject the repository
 
     private UUID testPostId;
@@ -31,6 +29,7 @@ public class JdbcImageRepositoryTest {
 
     @BeforeEach
     void setUp() {
+        imageRepository = new JdbcImageRepository(jdbcTemplate);
         testPostId = UUID.randomUUID();
 
         jdbcTemplate.execute("DELETE FROM t_posts");

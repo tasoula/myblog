@@ -2,40 +2,35 @@ package io.github.tasoula.repository;
 
 
 import io.github.tasoula.config.DataSourceTestConfiguration;
-import io.github.tasoula.config.WebConfiguration;
+import io.github.tasoula.config.WebTestConfiguration;
 import io.github.tasoula.dto.Comment;
 import io.github.tasoula.repository.interfaces.CommentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
-@SpringJUnitConfig(classes = {DataSourceTestConfiguration.class, WebConfiguration.class})
+@SpringJUnitConfig(classes = {DataSourceTestConfiguration.class, WebTestConfiguration.class})
 @WebAppConfiguration
 @TestPropertySource(locations = "classpath:test-application.properties")
 class JdbcCommentRepositoryTest {
-@Autowired
-private JdbcTemplate jdbcTemplate;
-
     @Autowired
+    private JdbcTemplate jdbcTemplate;
     private CommentRepository commentRepository;
-
     private UUID postId;
 
     @BeforeEach
     void setUp() {
+        commentRepository = new JdbcCommentRepository(jdbcTemplate);
+
         // Очистка таблицы комментариев
         jdbcTemplate.execute("DELETE FROM t_comments");
 

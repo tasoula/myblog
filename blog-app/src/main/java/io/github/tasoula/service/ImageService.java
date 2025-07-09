@@ -1,13 +1,16 @@
 package io.github.tasoula.service;
 
 import io.github.tasoula.repository.interfaces.ImageRepository;
+import jakarta.servlet.ServletContext;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,6 +23,9 @@ import java.util.UUID;
 public class ImageService {
     @Value("${upload.images.dir}") // свойство в application.properties
     private String uploadDir;
+
+    @Autowired
+    private ServletContext servletContext;
     private final ImageRepository repository;
 
     public ImageService(ImageRepository repository) {
@@ -38,6 +44,14 @@ public class ImageService {
 
     public String saveToDisc(MultipartFile file) throws IOException {
         String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+
+        if (uploadDir == null) {
+            throw new IllegalStateException("Требуется задать каталог для сохранения изображений поста");
+        }
+        File dir = new File(uploadDir);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
 
         // 2. Сохранить файл на диск
         Path filePath = Paths.get(uploadDir, filename);

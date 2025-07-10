@@ -17,7 +17,7 @@
     </init-param>
     <init-param>
       <param-name>contextConfigLocation</param-name>
-      <param-value>io.github.tasoula.config.WebConfiguration</param-value>
+      <param-value>io.github.tasoula.blog_app.config.WebConfiguration</param-value>
     </init-param>
     <load-on-startup>1</load-on-startup>
 

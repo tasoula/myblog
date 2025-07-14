@@ -5,6 +5,7 @@ import io.github.tasoula.blog_app.repository.interfaces.ImageRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
@@ -16,11 +17,11 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-//@SpringJUnitConfig(classes = {DataSourceConfiguration.class, WebConfiguration.class})
-@WebAppConfiguration
-@TestPropertySource(locations = "classpath:application.yml")
+@SpringBootTest
 @ActiveProfiles("test") // Активируем профиль "test"
 public class JdbcImageRepositoryTest {
+
+    //todo в рабочей папке с картинками создаются тестовые картинки и не удаляются
     @Autowired
     private JdbcTemplate jdbcTemplate;
     private ImageRepository imageRepository;  // Inject the repository

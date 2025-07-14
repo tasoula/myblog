@@ -6,6 +6,7 @@ import io.github.tasoula.blog_app.repository.JdbcPostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,9 +23,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
-//@SpringJUnitConfig(classes = {DataSourceConfiguration.class, WebConfiguration.class})
-@WebAppConfiguration
-@TestPropertySource(locations = "classpath:application.yml")
+@SpringBootTest
 @ActiveProfiles("test") // Активируем профиль "test"
 class JdbcPostRepositoryTest {
 

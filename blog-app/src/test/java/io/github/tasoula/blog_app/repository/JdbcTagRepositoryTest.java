@@ -1,7 +1,5 @@
 package io.github.tasoula.blog_app.repository;
 
-import io.github.tasoula.blog_app.config.DataSourceConfiguration;
-import io.github.tasoula.blog_app.config.WebConfiguration;
 import io.github.tasoula.blog_app.repository.JdbcTagRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,9 +17,9 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@SpringJUnitConfig(classes = {DataSourceConfiguration.class, WebConfiguration.class})
+//@SpringJUnitConfig(classes = {DataSourceConfiguration.class, WebConfiguration.class})
 @WebAppConfiguration
-@TestPropertySource(locations = "classpath:application.properties")
+@TestPropertySource(locations = "classpath:application.yml")
 @ActiveProfiles("test") // Активируем профиль "test"
 class JdbcTagRepositoryTest {
 

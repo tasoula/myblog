@@ -21,7 +21,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 public class ImageService {
-    @Value("${upload.images.dir}") // свойство в application.properties
+    @Value("${upload.images.dir}")
     private String uploadDir;
 
     @Autowired

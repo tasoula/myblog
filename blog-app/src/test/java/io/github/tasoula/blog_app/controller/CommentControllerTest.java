@@ -1,7 +1,5 @@
 package io.github.tasoula.blog_app.controller;
 
-import io.github.tasoula.blog_app.config.DataSourceConfiguration;
-import io.github.tasoula.blog_app.config.WebConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {DataSourceTestConfiguration.class, WebTestConfiguration.class})*/
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
-@ContextConfiguration(classes = {WebConfiguration.class, DataSourceConfiguration.class})
+//@ContextConfiguration(classes = {WebConfiguration.class, DataSourceConfiguration.class})
 @ActiveProfiles("test") // Активируем профиль "test"
 public class CommentControllerTest {
     @Autowired

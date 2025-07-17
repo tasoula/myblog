@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
@@ -21,19 +23,16 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(SpringExtension.class)
-@WebAppConfiguration
-//@ContextConfiguration(classes = {DataSourceConfiguration.class, WebConfiguration.class})
+@SpringBootTest
 @ActiveProfiles("test")
+@AutoConfigureMockMvc
 class PostControllerTest {
 
     @Autowired
-    private WebApplicationContext webApplicationContext;
     private MockMvc mockMvc;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
 
     private UUID postId;
     private UUID tagId;
@@ -49,8 +48,6 @@ class PostControllerTest {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-
         jdbcTemplate.execute("DELETE FROM t_comments");
         jdbcTemplate.execute("DELETE FROM t_posts");
         jdbcTemplate.execute("DELETE FROM t_tags");

@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -25,16 +27,13 @@ import java.util.UUID;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
-@WebAppConfiguration
-//@ContextConfiguration(classes = {DataSourceConfiguration.class, WebConfiguration.class})
+@SpringBootTest
 @ActiveProfiles("test")
+@AutoConfigureMockMvc
 class ImageControllerTest {
-
+    @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private WebApplicationContext webApplicationContext;
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -45,7 +44,6 @@ class ImageControllerTest {
 
     @BeforeEach
     void setUp() throws IOException {
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 
         jdbcTemplate.execute("DELETE FROM t_posts");
 

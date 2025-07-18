@@ -2,7 +2,6 @@ package io.github.tasoula.blog_app.repository;
 
 
 import io.github.tasoula.blog_app.dto.Comment;
-import io.github.tasoula.blog_app.repository.JdbcCommentRepository;
 import io.github.tasoula.blog_app.repository.interfaces.CommentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,9 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,22 +16,18 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@ActiveProfiles("test") // Активируем профиль "test"
+@ActiveProfiles("test")
 class JdbcCommentRepositoryTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
     private CommentRepository commentRepository;
     private UUID postId;
 
     @BeforeEach
     void setUp() {
-        commentRepository = new JdbcCommentRepository(jdbcTemplate);
-
         // Очистка таблицы комментариев
-        jdbcTemplate.execute("DELETE FROM t_comments");
-
-        // Создание UUID для post_id
-        postId = UUID.randomUUID();
         jdbcTemplate.execute("DELETE FROM t_comments");
         jdbcTemplate.execute("DELETE FROM t_posts");
 

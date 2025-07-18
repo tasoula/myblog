@@ -1,6 +1,5 @@
 package io.github.tasoula.blog_app.repository;
 
-import io.github.tasoula.blog_app.repository.JdbcImageRepository;
 import io.github.tasoula.blog_app.repository.interfaces.ImageRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,9 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.util.UUID;
 
@@ -24,6 +20,8 @@ public class JdbcImageRepositoryTest {
     //todo в рабочей папке с картинками создаются тестовые картинки и не удаляются
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
     private ImageRepository imageRepository;  // Inject the repository
 
     private UUID testPostId;
@@ -31,7 +29,7 @@ public class JdbcImageRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        imageRepository = new JdbcImageRepository(jdbcTemplate);
+
         testPostId = UUID.randomUUID();
 
         jdbcTemplate.execute("DELETE FROM t_posts");

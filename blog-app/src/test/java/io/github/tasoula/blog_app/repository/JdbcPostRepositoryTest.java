@@ -2,7 +2,6 @@ package io.github.tasoula.blog_app.repository;
 
 
 import io.github.tasoula.blog_app.dto.Post;
-import io.github.tasoula.blog_app.repository.JdbcPostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,16 +11,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest
 @ActiveProfiles("test") // Активируем профиль "test"
@@ -29,7 +24,7 @@ class JdbcPostRepositoryTest {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
-
+    @Autowired
     private JdbcPostRepository postRepository;
 
     private final UUID postId1 = UUID.randomUUID();
@@ -42,7 +37,6 @@ class JdbcPostRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        postRepository = new JdbcPostRepository(jdbcTemplate);
         // Очистка базы данных
         jdbcTemplate.execute("DELETE FROM t_sv_post_tag");
         jdbcTemplate.execute("DELETE FROM t_tags");

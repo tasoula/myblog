@@ -27,15 +27,15 @@ public class CommentControllerTest {
     private JdbcTemplate jdbcTemplate;
 
     private UUID postId;
-    private  UUID commentId;
+    private UUID commentId;
 
     @BeforeEach
     void setUp() {
         jdbcTemplate.execute("DELETE FROM t_comments");
         jdbcTemplate.execute("DELETE FROM t_posts");
 
-       postId = UUID.randomUUID();
-        jdbcTemplate.update("INSERT INTO t_posts (id, title) VALUES (?, ?)",  postId, "заголовок поста");
+        postId = UUID.randomUUID();
+        jdbcTemplate.update("INSERT INTO t_posts (id, title) VALUES (?, ?)", postId, "заголовок поста");
 
         commentId = UUID.randomUUID();
         jdbcTemplate.update("INSERT INTO t_comments (id, post_id, content) VALUES (?, ?, ?)", commentId, postId, "comment");

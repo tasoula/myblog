@@ -2,17 +2,12 @@ package io.github.tasoula.blog_app.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.UUID;
 
@@ -21,35 +16,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-/*@ExtendWith(SpringExtension.class)
-@WebAppConfiguration
-@ContextConfiguration(classes = {DataSourceTestConfiguration.class, WebTestConfiguration.class})*/
-@ExtendWith(SpringExtension.class)
-@WebAppConfiguration
-//@ContextConfiguration(classes = {WebConfiguration.class, DataSourceConfiguration.class})
-@ActiveProfiles("test") // Активируем профиль "test"
+@SpringBootTest
+@ActiveProfiles("test")
+@AutoConfigureMockMvc
 public class CommentControllerTest {
     @Autowired
-    private WebApplicationContext webApplicationContext;
     private MockMvc mockMvc;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
     private UUID postId;
-    private  UUID commentId;
+    private UUID commentId;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this); // Инициализация Mockito
-
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-
         jdbcTemplate.execute("DELETE FROM t_comments");
         jdbcTemplate.execute("DELETE FROM t_posts");
 
-       postId = UUID.randomUUID();
-        jdbcTemplate.update("INSERT INTO t_posts (id, title) VALUES (?, ?)",  postId, "заголовок поста");
+        postId = UUID.randomUUID();
+        jdbcTemplate.update("INSERT INTO t_posts (id, title) VALUES (?, ?)", postId, "заголовок поста");
 
         commentId = UUID.randomUUID();
         jdbcTemplate.update("INSERT INTO t_comments (id, post_id, content) VALUES (?, ?, ?)", commentId, postId, "comment");

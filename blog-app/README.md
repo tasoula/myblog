@@ -80,7 +80,7 @@
   ./gradlew :bootJar
 ```
 
-Будет создан файл blog-app.jar в каталоге build/libs.
+Будет создан файл blog-app-2.0.0.jar в каталоге build/libs.
 
 2. Запуск тестов:
 
@@ -93,7 +93,7 @@
 
 
 ```bash
-java -jar build/libs/blog-app.jar
+java -jar build/libs/blog-app-2.0.0.jar
 ```
 
 ▌Доступ к приложению:

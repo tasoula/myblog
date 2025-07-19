@@ -19,7 +19,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@ActiveProfiles("test") // Активируем профиль "test"
+@ActiveProfiles("test")
 class JdbcPostRepositoryTest {
 
     @Autowired

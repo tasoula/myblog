@@ -6,12 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.UUID;
 
-@Slf4j
+
 @Service
 public class PostService {
     private final PostRepository postRepository;
@@ -38,47 +39,47 @@ public class PostService {
         return post;
     }
 
+
+    @Transactional
     public void create(String title, MultipartFile image, String tags, String content) {
-        try {
-            Post post = new Post();
-            post.setTitle(title);
-            post.setTags(tagService.parseTags(tags));
-            post.setContent(content);
+        Post post = new Post();
+        post.setTitle(title);
+        post.setTags(tagService.parseTags(tags));
+        post.setContent(content);
 
-            String filename = imageService.saveToDisc(image);
-            post.setImageUrl(filename);
+        String filename = UUID.randomUUID() + "_" + image.getOriginalFilename();
+        post.setImageUrl(filename);
 
-            UUID postId = postRepository.create(post);
+        UUID postId = postRepository.create(post);
 
-
-            if (postId != null) {
-                post.setId(postId);
-                tagService.updatePostTags(postId, tags);
-            }
-
-        } catch (IOException e) {
-            log.error("Произошла ошибка: {}", e.getMessage(), e);
+        if (postId != null) {
+            post.setId(postId);
+            tagService.updatePostTags(postId, tags);
         }
+
+        imageService.saveToDisc(image, filename);
     }
 
+    @Transactional
     public void update(UUID id, String title, MultipartFile image, String tags, String content) {
         Post post = new Post();
         post.setId(id);
         post.setTitle(title);
         post.setContent(content);
-        postRepository.update(post); // Сохранить пост в базу
-
-        imageService.updatePostImage(id, image);
+        postRepository.update(post);
         tagService.updatePostTags(id, tags);
+        imageService.updatePostImage(id, image);
     }
 
+    @Transactional
     public void delete(UUID id) {
-        imageService.deletePostImage(id);
+        String oldImagePath = imageService.getImagePath(id);
         postRepository.delete(id);
+        imageService.deleteImageFromDisk(oldImagePath);
     }
 
+    @Transactional
     public void addLike(UUID id, boolean like) {
         postRepository.updateLikes(id, like ? 1 : -1);
     }
-
 }

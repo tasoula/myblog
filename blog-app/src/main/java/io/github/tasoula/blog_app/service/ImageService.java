@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -42,9 +43,25 @@ public class ImageService {
         return Optional.of(new FileSystemResource(filePath.toFile()));
     }
 
-    public String saveToDisc(MultipartFile file) throws IOException {
-        String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+    @Transactional //так же, как и в TagService, оставлю на случай изменений
+    public void updatePostImage(UUID postId, MultipartFile image) {
+        if (image == null || image.isEmpty())
+            return;
 
+        String oldImagePath = repository.getPostImage(postId);
+
+        String imagePath = UUID.randomUUID() + "_" + image.getOriginalFilename();
+        repository.updatePostImage(postId, imagePath);
+
+        saveToDisc(image, imagePath);
+        deleteImageFromDisk(oldImagePath);
+    }
+
+    public String getImagePath(UUID postId){
+        return repository.getPostImage(postId);
+    }
+
+    public void saveToDisc(MultipartFile file, String imagePath) {
         if (uploadDir == null) {
             throw new IllegalStateException("Требуется задать каталог для сохранения изображений поста");
         }
@@ -54,32 +71,16 @@ public class ImageService {
         }
 
         // 2. Сохранить файл на диск
-        Path filePath = Paths.get(uploadDir, filename);
-        Files.copy(file.getInputStream(), filePath);
-
-        return filename;
-    }
-
-    public void updatePostImage(UUID postId, MultipartFile image) {
-        if (image == null || image.isEmpty())
-            return;
-
+        Path filePath = Paths.get(uploadDir, imagePath);
         try {
-            deletePostImage(postId);
-            String filename = saveToDisc(image);
-            repository.updatePostImage(postId, filename); // Сохраняем путь
-
-        } catch (IOException e) {
-            log.error("Произошла ошибка: {}", e.getMessage(), e);
+            Files.copy(file.getInputStream(), filePath);
+        }
+        catch (IOException e){
+            log.error("Не удалось загрузить изобраение: {}", e.getMessage(), e);
         }
     }
 
-    public void deletePostImage(UUID postId) {
-        //удалить картинку из хранилища
-        String imagePath = repository.getPostImage(postId);
-        if (imagePath == null)
-            return;
-
+    public void deleteImageFromDisk(String imagePath){
         Path filePath = Paths.get(uploadDir, imagePath);
 
         if (!Files.exists(filePath))
@@ -88,8 +89,7 @@ public class ImageService {
         try {
             Files.delete(filePath);
         } catch (IOException e) {
-            log.error("Произошла ошибка: {}", e.getMessage(), e);
-            throw new RuntimeException(e);
+            log.error("Не удалось удалить файл: {}", e.getMessage(), e);
         }
     }
 }

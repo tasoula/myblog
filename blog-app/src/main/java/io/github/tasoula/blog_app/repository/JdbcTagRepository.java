@@ -20,9 +20,8 @@ public class JdbcTagRepository implements TagRepository {
         String sql = "SELECT t.name FROM t_tags t JOIN t_sv_post_tag pst ON t.id = pst.tag_id WHERE pst.post_id = ?";
         return jdbcTemplate.queryForList(sql, String.class, postId);
     }
-    @Transactional
-    public void updatePostTags(UUID postId, List<String> tags) {
 
+    public void updatePostTags(UUID postId, List<String> tags) {
         // todo переделать со сравнением двух списков тэгов
         // 1. Удаляем существующие связи для данного поста
         String deleteSql = "DELETE FROM t_sv_post_tag WHERE post_id = ?";
@@ -50,5 +49,4 @@ public class JdbcTagRepository implements TagRepository {
             return newTagId;
         }
     }
-
 }

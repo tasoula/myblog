@@ -2,6 +2,7 @@ package io.github.tasoula.blog_app.service;
 
 import io.github.tasoula.blog_app.repository.interfaces.TagRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,9 @@ public class TagService {
         return repository.getTagsByPostId(postId);
     }
 
+     // Этот метод используется в методах PostService, которые сами помечены @Transactional поэтому здесь аннтацию можно убрать.
+     // Но оставлю на случай изменений
+     @Transactional
     public void updatePostTags(UUID postId, String tags) {
         repository.updatePostTags(postId, parseTags(tags));
     }
